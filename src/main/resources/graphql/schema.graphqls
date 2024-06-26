@@ -1,0 +1,34 @@
+enum EvidenceType {
+    EMF_LEVEL_5
+    ULTRAVIOLET
+    GHOST_WRITING
+    DOTS_PROJECTOR
+    GHOST_ORB
+    SPIRIT_BOX
+    FREEZING_TEMPERATURES
+}
+
+enum InformationType {
+    DESCRIPTION
+    STRENGTH
+    WEAKNESS
+    NEUTRAL
+    UNIQUE_BEHAVIOUR
+}
+
+type Ghost {
+    ghostName: String
+    canAccelerate: Boolean,
+    evidences: [EvidenceType],
+    details: [Detail],
+}
+
+type Detail {
+    summary: String
+    information: InformationType
+}
+
+type Query {
+    getAllGhosts: [Ghost],
+    getGhostByName(ghostName: String): Ghost
+}
