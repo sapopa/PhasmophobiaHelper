@@ -32,3 +32,27 @@ type Query {
     getAllGhosts: [Ghost],
     getGhostByName(ghostName: String): Ghost
 }
+
+input DetailInput {
+    summary: String,
+    information: InformationType
+}
+
+input GhostInput {
+    ghostName: String
+    canAccelerate: Boolean,
+    evidences: [EvidenceType],
+    details: [DetailInput],
+}
+
+type DeleteGhostResponse {
+    success: Boolean
+    message: String
+    deletedGhost: Ghost
+}
+
+type Mutation {
+    addGhost(ghostInput: GhostInput) : Ghost
+    removeGhost(ghostName: String) : DeleteGhostResponse
+    updateGhost(ghostName: String!, ghost: GhostInput) : Ghost
+}

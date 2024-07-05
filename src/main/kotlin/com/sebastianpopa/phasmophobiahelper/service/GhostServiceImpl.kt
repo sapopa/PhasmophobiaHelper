@@ -1,26 +1,44 @@
 package com.sebastianpopa.phasmophobiahelper.service
 
-import com.sebastianpopa.phasmophobiahelper.entity.Detail
-import com.sebastianpopa.phasmophobiahelper.entity.EvidenceType
+import com.sebastianpopa.phasmophobiahelper.dao.GhostDAO
 import com.sebastianpopa.phasmophobiahelper.entity.Ghost
-import com.sebastianpopa.phasmophobiahelper.entity.InformationType
+import com.sebastianpopa.phasmophobiahelper.extensions.convertToEntity
+import com.sebastianpopa.phasmophobiahelper.extensions.toEntity
+import com.sebastianpopa.phasmophobiahelper.repository.GhostRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
-class GhostServiceImpl: GhostService{
-    val mockData = listOf(
-        Ghost(ghostName = "Yokai", canAccelerate = true,
-            evidences = setOf(EvidenceType.DOTS_PROJECTOR, EvidenceType.GHOST_ORB, EvidenceType.SPIRIT_BOX),
-            details = setOf(Detail(summary = "This ghost will always know your location!", information = InformationType.STRENGTH), Detail(summary = "This ghost will walk slower the closer it is to you!", information = InformationType.WEAKNESS))),
-        Ghost(ghostName = "Yurei", canAccelerate = false,
-            evidences = setOf(EvidenceType.DOTS_PROJECTOR, EvidenceType.GHOST_ORB, EvidenceType.FREEZING_TEMPERATURES),
-            details = setOf(Detail(summary = "This ghost cannot turn off the breaker!", information = InformationType.WEAKNESS), Detail(summary = "This ghost will walk faster near electronics!", information = InformationType.NEUTRAL)))
-    )
-    override fun getAllGhosts(): List<Ghost?> {
-        return mockData
+class GhostServiceImpl(private val ghostRepository: GhostRepository): GhostService{
+    override fun getAllGhosts(): List<Ghost?> = ghostRepository.findAll()
+
+    override fun getGhostByName(ghostName: String): Ghost? = ghostRepository.findByGhostName(ghostName)
+
+    @Transactional
+    override fun addGhost(ghostDAO: GhostDAO): Ghost? {
+        val ghost = convertToEntity(ghostDAO) ?: return null
+        return ghostRepository.save(ghost)
     }
 
-    override fun getGhostByName(name: String): Ghost? {
-        return mockData.find { it.ghostName == name }
+    @Transactional
+    override fun removeGhost(ghostName: String) : Ghost? {
+        val ghost = getGhostByName(ghostName)
+        if(ghost != null){
+            ghostRepository.delete(ghost)
+        }
+        return ghost
+    }
+
+    @Transactional
+    override fun updateGhost(ghostName: String, ghostDAO: GhostDAO): Ghost? {
+        val ghost = getGhostByName(ghostName)
+        ghost?.let {
+            it.ghostName = ghostDAO.ghostName ?: it.ghostName
+            it.evidences = ghostDAO.evidences ?: it.evidences
+            it.details = ghostDAO.details?.map { detailDAO ->
+                detailDAO.toEntity(it) }?.toSet() ?: it.details
+            it.canAccelerate = ghostDAO.canAccelerate ?: it.canAccelerate
+        }
+        return ghost
     }
 }

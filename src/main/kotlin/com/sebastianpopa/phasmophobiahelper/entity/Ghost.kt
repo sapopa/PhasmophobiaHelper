@@ -13,6 +13,6 @@ class Ghost(
     @ElementCollection(targetClass = EvidenceType::class, fetch = FetchType.EAGER)
     @Enumerated
     var evidences: Set<EvidenceType>,
-    @OneToMany
+    @OneToMany(mappedBy = "ghost", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     var details: Set<Detail>
 )

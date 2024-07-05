@@ -12,4 +12,7 @@ fun Ghost.toDto(): GhostDTO = GhostDTO(
     details = details.map { it.toDto() }.toSet()
 )
 
-fun Detail.toDto(): DetailDTO = DetailDTO(summary = summary, information = information)
+fun Detail.toDto(): DetailDTO = DetailDTO(
+    summary = summary,
+    information = information,
+)
